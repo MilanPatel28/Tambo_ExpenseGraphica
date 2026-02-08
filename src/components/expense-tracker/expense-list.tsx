@@ -163,7 +163,7 @@ interface ExpenseListProps {
 }
 
 export function ExpenseList({
-    expenses,
+    expenses = [],
     onEdit,
     onDelete,
     onBulkDelete,
@@ -207,7 +207,7 @@ export function ExpenseList({
         }).format(amount);
     };
 
-    const totalSelected = expenses
+    const totalSelected = (expenses || [])
         .filter((e) => selectedIds.has(e.id))
         .reduce((sum, e) => sum + e.amount, 0);
 

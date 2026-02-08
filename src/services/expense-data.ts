@@ -1,7 +1,9 @@
 /**
  * @file expense-data.ts
- * @description Service for expense data operations
+ * @description Service for expense data operations using API
  */
+
+import { getUserSession } from "./auth-data";
 
 export interface Expense {
   id: string;
@@ -10,6 +12,7 @@ export interface Expense {
   category: string;
   description: string;
   type: "expense";
+  userId?: string;
 }
 
 export interface ExpenseFilter {
@@ -29,106 +32,132 @@ export interface ExpenseSummary {
   byMonth: Record<string, number>;
 }
 
-// Mock data storage (simulating CSV data)
-let expenses: Expense[] = [
-  { id: "1", amount: 1200.00, date: "2026-02-01", category: "Rent", description: "Monthly apartment rent", type: "expense" },
-  { id: "2", amount: 85.50, date: "2026-02-02", category: "Groceries", description: "Weekly grocery shopping", type: "expense" },
-  { id: "3", amount: 45.00, date: "2026-02-03", category: "Transportation", description: "Uber rides", type: "expense" },
-  { id: "4", amount: 120.00, date: "2026-02-03", category: "Utilities", description: "Electricity bill", type: "expense" },
-  { id: "5", amount: 25.99, date: "2026-02-04", category: "Entertainment", description: "Netflix subscription", type: "expense" },
-  { id: "6", amount: 150.00, date: "2026-02-05", category: "Dining", description: "Restaurant with friends", type: "expense" },
-  { id: "7", amount: 65.00, date: "2026-02-05", category: "Healthcare", description: "Pharmacy", type: "expense" },
-  { id: "8", amount: 200.00, date: "2026-02-06", category: "Shopping", description: "New shoes", type: "expense" },
-  { id: "9", amount: 42.50, date: "2026-02-06", category: "Groceries", description: "Fresh produce", type: "expense" },
-  { id: "10", amount: 18.00, date: "2026-02-07", category: "Transportation", description: "Metro pass", type: "expense" },
-  { id: "11", amount: 89.99, date: "2026-02-07", category: "Subscriptions", description: "Gym membership", type: "expense" },
-  { id: "12", amount: 55.00, date: "2026-02-08", category: "Dining", description: "Lunch meeting", type: "expense" },
-  { id: "13", amount: 32.00, date: "2026-02-08", category: "Entertainment", description: "Movie tickets", type: "expense" },
-  { id: "14", amount: 75.00, date: "2026-01-28", category: "Groceries", description: "Bulk shopping", type: "expense" },
-  { id: "15", amount: 180.00, date: "2026-01-25", category: "Shopping", description: "Winter jacket", type: "expense" },
-  { id: "16", amount: 95.00, date: "2026-01-20", category: "Utilities", description: "Internet bill", type: "expense" },
-  { id: "17", amount: 60.00, date: "2026-01-15", category: "Healthcare", description: "Doctor visit copay", type: "expense" },
-  { id: "18", amount: 40.00, date: "2026-01-10", category: "Transportation", description: "Gas", type: "expense" },
-  { id: "19", amount: 110.00, date: "2026-01-05", category: "Dining", description: "Birthday dinner", type: "expense" },
-  { id: "20", amount: 28.00, date: "2026-01-03", category: "Entertainment", description: "Spotify premium", type: "expense" },
-];
-
 /**
- * Get filtered expenses
+ * Get filtered expenses from API
  */
 export async function getExpenses(filter?: ExpenseFilter): Promise<Expense[]> {
-  let filtered = [...expenses];
+  const user = getUserSession();
+  if (!user) return [];
 
-  if (filter) {
-    if (filter.startDate) {
-      filtered = filtered.filter(e => e.date >= filter.startDate!);
+  try {
+    const response = await fetch(`/api/expenses?userId=${user.id}`);
+    if (!response.ok) {
+        console.error("Failed to fetch expenses");
+        return [];
     }
-    if (filter.endDate) {
-      filtered = filtered.filter(e => e.date <= filter.endDate!);
+    
+    let expenses: Expense[] = await response.json();
+
+    if (filter) {
+        if (filter.startDate) {
+        expenses = expenses.filter(e => e.date >= filter.startDate!);
+        }
+        if (filter.endDate) {
+        expenses = expenses.filter(e => e.date <= filter.endDate!);
+        }
+        if (filter.category) {
+        expenses = expenses.filter(e => e.category.toLowerCase() === filter.category!.toLowerCase());
+        }
+        if (filter.minAmount !== undefined) {
+        expenses = expenses.filter(e => e.amount >= filter.minAmount!);
+        }
+        if (filter.maxAmount !== undefined) {
+        expenses = expenses.filter(e => e.amount <= filter.maxAmount!);
+        }
+        if (filter.searchQuery) {
+        const query = filter.searchQuery.toLowerCase();
+        expenses = expenses.filter(e => 
+            (e.description?.toLowerCase().includes(query) || false) ||
+            e.category.toLowerCase().includes(query)
+        );
+        }
     }
-    if (filter.category) {
-      filtered = filtered.filter(e => e.category.toLowerCase() === filter.category!.toLowerCase());
-    }
-    if (filter.minAmount !== undefined) {
-      filtered = filtered.filter(e => e.amount >= filter.minAmount!);
-    }
-    if (filter.maxAmount !== undefined) {
-      filtered = filtered.filter(e => e.amount <= filter.maxAmount!);
-    }
-    if (filter.searchQuery) {
-      const query = filter.searchQuery.toLowerCase();
-      filtered = filtered.filter(e => 
-        e.description.toLowerCase().includes(query) ||
-        e.category.toLowerCase().includes(query)
-      );
-    }
+
+    return expenses.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  } catch (error) {
+      console.error("Error getting expenses:", error);
+      return [];
   }
-
-  return filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 }
 
 /**
- * Add a new expense
+ * Add a new expense via API
  */
 export async function addExpense(expense: Omit<Expense, "id" | "type">): Promise<Expense> {
-  const newExpense: Expense = {
-    ...expense,
-    id: String(Date.now()),
-    type: "expense",
-  };
-  expenses.push(newExpense);
-  return newExpense;
+  const user = getUserSession();
+  if (!user) throw new Error("User not authenticated");
+
+  try {
+      const response = await fetch("/api/expenses", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+              ...expense,
+              userId: user.id,
+              type: "expense"
+          }),
+      });
+
+      if (!response.ok) {
+          throw new Error("Failed to add expense");
+      }
+
+      return await response.json();
+  } catch (error) {
+      console.error("Error adding expense:", error);
+      throw error;
+  }
 }
 
 /**
- * Update an existing expense
+ * Update an existing expense via API
  */
 export async function updateExpense(id: string, updates: Partial<Omit<Expense, "id" | "type">>): Promise<Expense | null> {
-  const index = expenses.findIndex(e => e.id === id);
-  if (index === -1) return null;
-  
-  expenses[index] = { ...expenses[index], ...updates };
-  return expenses[index];
+  try {
+      const response = await fetch(`/api/expenses/${id}`, {
+          method: "PUT",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updates),
+      });
+
+      if (!response.ok) {
+          return null;
+      }
+
+      return await response.json();
+  } catch (error) {
+      console.error("Error updating expense:", error);
+      return null;
+  }
 }
 
 /**
- * Delete an expense
+ * Delete an expense via API
  */
 export async function deleteExpense(id: string): Promise<boolean> {
-  const index = expenses.findIndex(e => e.id === id);
-  if (index === -1) return false;
-  
-  expenses.splice(index, 1);
-  return true;
+  try {
+      const response = await fetch(`/api/expenses/${id}`, {
+          method: "DELETE",
+      });
+
+      return response.ok;
+  } catch (error) {
+      console.error("Error deleting expense:", error);
+      return false;
+  }
 }
 
 /**
  * Delete multiple expenses
  */
 export async function deleteExpenses(ids: string[]): Promise<number> {
-  const initialLength = expenses.length;
-  expenses = expenses.filter(e => !ids.includes(e.id));
-  return initialLength - expenses.length;
+  // Process in parallel
+  const results = await Promise.all(ids.map(id => deleteExpense(id)));
+  return results.filter(success => success).length;
 }
 
 /**
@@ -163,10 +192,8 @@ export async function getExpenseSummary(filter?: ExpenseFilter): Promise<Expense
  * Get recent expenses
  */
 export async function getRecentExpenses(limit: number = 5): Promise<Expense[]> {
-  const sorted = [...expenses].sort((a, b) => 
-    new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-  return sorted.slice(0, limit);
+  const expenses = await getExpenses();
+  return expenses.slice(0, limit);
 }
 
 /**
