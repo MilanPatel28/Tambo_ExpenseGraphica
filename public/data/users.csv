@@ -1,0 +1,4 @@
+id,email,password,name,createdAt
+user_1,demo@example.com,demo123,Demo User,2025-01-15
+user_2,john@example.com,password123,John Doe,2025-01-20
+user_1770568397670,milan@gmail.com,123456,Milan Patel,2026-02-08

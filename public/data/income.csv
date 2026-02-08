@@ -1,0 +1,9 @@
+id,amount,date,source,description
+1,5500.00,2026-02-01,Salary,Monthly salary
+2,800.00,2026-02-05,Freelance,Web development project
+3,150.00,2026-02-07,Other,Cash gift
+4,5500.00,2026-01-01,Salary,Monthly salary
+5,1200.00,2026-01-15,Freelance,Logo design project
+6,250.00,2026-01-20,Investments,Dividend payment
+7,5500.00,2025-12-01,Salary,Monthly salary
+8,600.00,2025-12-10,Freelance,Consulting work

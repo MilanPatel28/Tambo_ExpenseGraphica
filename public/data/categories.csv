@@ -1,0 +1,14 @@
+id,name,color,icon,type
+1,Groceries,#10b981,ShoppingCart,expense
+2,Rent,#6366f1,Home,expense
+3,Transportation,#f59e0b,Car,expense
+4,Utilities,#8b5cf6,Zap,expense
+5,Entertainment,#ec4899,Film,expense
+6,Dining,#f97316,Utensils,expense
+7,Healthcare,#ef4444,Heart,expense
+8,Shopping,#06b6d4,ShoppingBag,expense
+9,Subscriptions,#84cc16,CreditCard,expense
+10,Salary,#22c55e,Briefcase,income
+11,Freelance,#3b82f6,Laptop,income
+12,Investments,#a855f7,TrendingUp,income
+13,Other,#64748b,MoreHorizontal,income

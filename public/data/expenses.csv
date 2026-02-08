@@ -1,0 +1,21 @@
+id,amount,date,category,description,type
+1,1200.00,2026-02-01,Rent,Monthly apartment rent,expense
+2,85.50,2026-02-02,Groceries,Weekly grocery shopping,expense
+3,45.00,2026-02-03,Transportation,Uber rides,expense
+4,120.00,2026-02-03,Utilities,Electricity bill,expense
+5,25.99,2026-02-04,Entertainment,Netflix subscription,expense
+6,150.00,2026-02-05,Dining,Restaurant with friends,expense
+7,65.00,2026-02-05,Healthcare,Pharmacy,expense
+8,200.00,2026-02-06,Shopping,New shoes,expense
+9,42.50,2026-02-06,Groceries,Fresh produce,expense
+10,18.00,2026-02-07,Transportation,Metro pass,expense
+11,89.99,2026-02-07,Subscriptions,Gym membership,expense
+12,55.00,2026-02-08,Dining,Lunch meeting,expense
+13,32.00,2026-02-08,Entertainment,Movie tickets,expense
+14,75.00,2026-01-28,Groceries,Bulk shopping,expense
+15,180.00,2026-01-25,Shopping,Winter jacket,expense
+16,95.00,2026-01-20,Utilities,Internet bill,expense
+17,60.00,2026-01-15,Healthcare,Doctor visit copay,expense
+18,40.00,2026-01-10,Transportation,Gas,expense
+19,110.00,2026-01-05,Dining,Birthday dinner,expense
+20,28.00,2026-01-03,Entertainment,Spotify premium,expense

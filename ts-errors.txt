@@ -1,0 +1,2 @@
+﻿src/components/expense-tracker/expense-chart.tsx(133,52): error TS2339: Property 'category' does not exist on type 'PieLabelRenderProps'.
+src/components/expense-tracker/expense-chart.tsx(133,62): error TS2339: Property 'percentage' does not exist on type 'PieLabelRenderProps'.
